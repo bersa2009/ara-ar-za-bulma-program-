@@ -52,6 +52,14 @@ dart tools/generate_sae_dtc.dart --out-csv tools/dtc_seed_template.csv --langs e
 dart tools/convert_csv_to_json.dart tools/dtc_seed_template.csv assets/
 ```
 
+### Import vendor datasets (Launch/Delphi/Bosch/Autel/Thinktool/DDT4All/PyRen)
+```bash
+python3 tools/import_vendor_dtc.py --in vendor_delphi.csv vendor_bosch.json \
+  --out-csv tools/dtc_seed_template.csv --manufacturer delphi --lang en --append
+dart tools/convert_csv_to_json.dart tools/dtc_seed_template.csv assets/
+```
+Note: Ensure you respect original licenses of vendor datasets. The app seeds from JSON; use `--require-manufacturer` (default) to keep provenance.
+
 After conversion, the app will seed the SQLite DB on first run. For very large seed files (10k+), initial seeding may take a minute on older devices.
 
 ## Features
