@@ -10,11 +10,13 @@ class AppSettings extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   PreferredTransport _preferredTransport = PreferredTransport.ble;
   bool _ttsEnabled = true;
+  bool _colorblindFriendly = false;
 
   Locale get locale => _locale;
   ThemeMode get themeMode => _themeMode;
   PreferredTransport get preferredTransport => _preferredTransport;
   bool get ttsEnabled => _ttsEnabled;
+  bool get colorblindFriendly => _colorblindFriendly;
 
   Future<void> load() async {
     final sp = await SharedPreferences.getInstance();
@@ -22,6 +24,7 @@ class AppSettings extends ChangeNotifier {
     final theme = sp.getString('theme') ?? 'system';
     final transport = sp.getString('transport') ?? 'ble';
     _ttsEnabled = sp.getBool('tts') ?? true;
+    _colorblindFriendly = sp.getBool('colorblind') ?? false;
     _locale = Locale(lang);
     _themeMode = switch (theme) {
       'dark' => ThemeMode.dark,
@@ -69,6 +72,13 @@ class AppSettings extends ChangeNotifier {
     _ttsEnabled = enabled;
     final sp = await SharedPreferences.getInstance();
     await sp.setBool('tts', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setColorblindFriendly(bool enabled) async {
+    _colorblindFriendly = enabled;
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool('colorblind', enabled);
     notifyListeners();
   }
 }

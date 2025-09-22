@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'elm_transport.dart';
 import 'elm_parser.dart';
+import '../core/wmi_brands.dart';
 
 class DtcCode {
   final String code;
@@ -17,18 +18,28 @@ class Elm327Client {
 
   Future<void> initialize() async {
     await transport.open();
+    // Robust auto-calibration for a wide range of ELM clones
     await _cmd('ATZ', settleMs: 1200);
     await _cmd('ATE0');
     await _cmd('ATL0');
     await _cmd('ATS0');
+    await _cmd('ATH1');
     await _cmd('ATST64');
     await _cmd('ATAT2');
     await _cmd('ATSP0');
+    // Confirm selected protocol
+    await _cmd('ATDPN');
   }
 
   Future<String?> readVin() async {
     final res = await _cmd('0902');
     return ElmParser.parseVin(res);
+  }
+
+  String? detectBrandFromVin(String? vin) {
+    if (vin == null || vin.length < 3) return null;
+    final wmi = vin.substring(0, 3).toUpperCase();
+    return wmiToBrand[wmi];
   }
 
   Future<List<DtcCode>> readDtcs() async {

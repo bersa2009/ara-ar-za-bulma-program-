@@ -29,6 +29,7 @@ class DtcRepository {
       CREATE TABLE dtc (
         code TEXT PRIMARY KEY,
         system TEXT NOT NULL,
+        manufacturer TEXT,
         is_generic INTEGER NOT NULL DEFAULT 1
       );
     ''');
@@ -58,6 +59,7 @@ class DtcRepository {
       final code = (map['code'] as String).toUpperCase();
       final system = map['system'] as String? ?? 'Powertrain';
       final isGeneric = (map['is_generic'] as bool? ?? true) ? 1 : 0;
+      final manufacturer = map['manufacturer'] as String?;
       final title = map['title'] as String? ?? '';
       final description = map['description'] as String?;
       final causes = map['causes'];
@@ -65,6 +67,7 @@ class DtcRepository {
       batch.insert('dtc', {
         'code': code,
         'system': system,
+        'manufacturer': manufacturer,
         'is_generic': isGeneric,
       }, conflictAlgorithm: ConflictAlgorithm.ignore);
       batch.insert('dtc_i18n', {

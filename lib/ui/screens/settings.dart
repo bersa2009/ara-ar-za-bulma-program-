@@ -21,11 +21,8 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(title: const Text('Erişilebilirlik')),
           SwitchListTile(
             title: const Text('Renk körlüğü dostu tema'),
-            value: Theme.of(context).colorScheme.error == Colors.black,
-            onChanged: (_) {
-              // Placeholder: real theme profiles can be applied via ThemeMode and custom schemes
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tema profilleri yakında.')));
-            },
+            value: settings.colorblindFriendly,
+            onChanged: (v) => settings.setColorblindFriendly(v),
           ),
           ListTile(title: const Text('Dil'), subtitle: Text(settings.locale.languageCode.toUpperCase())),
           Padding(
