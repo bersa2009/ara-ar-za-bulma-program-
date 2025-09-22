@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -46,6 +47,11 @@ class ReportScreen extends StatelessWidget {
                 actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Kapat'))],
               ),
             ),
+            onLongPress: () async {
+              final tts = FlutterTts();
+              await tts.setLanguage('tr-TR');
+              await tts.speak('${it.code}, ${it.title}');
+            },
           );
         },
         separatorBuilder: (_, __) => const Divider(),

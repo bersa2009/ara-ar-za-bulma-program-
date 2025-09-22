@@ -18,6 +18,15 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Ayarlar')),
       body: ListView(
         children: [
+          ListTile(title: const Text('Erişilebilirlik')),
+          SwitchListTile(
+            title: const Text('Renk körlüğü dostu tema'),
+            value: Theme.of(context).colorScheme.error == Colors.black,
+            onChanged: (_) {
+              // Placeholder: real theme profiles can be applied via ThemeMode and custom schemes
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tema profilleri yakında.')));
+            },
+          ),
           ListTile(title: const Text('Dil'), subtitle: Text(settings.locale.languageCode.toUpperCase())),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),

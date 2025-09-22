@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/connection_manager.dart';
 import '../../core/app_settings.dart';
+import '../widgets/drive_warning.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -18,6 +19,7 @@ class HomeScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const DriveWarningBanner(),
             const Text(
               'Strcar OBD Bağlantısı',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
