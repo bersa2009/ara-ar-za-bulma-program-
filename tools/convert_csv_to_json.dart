@@ -3,12 +3,13 @@ import 'dart:io';
 
 void main(List<String> args) async {
   if (args.length < 2) {
-    stderr.writeln('Usage: dart tools/convert_csv_to_json.dart <csv_path> <assets_dir> [--require-manufacturer]');
+    stderr.writeln('Usage: dart tools/convert_csv_to_json.dart <csv_path> <assets_dir> [--no-require-manufacturer]');
     exit(1);
   }
   final csvPath = args[0];
   final outDir = args[1];
-  final requireManufacturer = args.contains('--require-manufacturer');
+  // Require manufacturer by default; can be disabled with --no-require-manufacturer
+  final requireManufacturer = !args.contains('--no-require-manufacturer');
   final csv = await File(csvPath).readAsLines();
   if (csv.isEmpty) {
     stderr.writeln('Empty CSV');
