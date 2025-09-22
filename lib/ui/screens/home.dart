@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/connection_manager.dart';
 import '../../core/app_settings.dart';
+import '../../core/permissions.dart';
 import '../widgets/drive_warning.dart';
 import 'scan.dart';
 
@@ -48,7 +49,17 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: 20),
             Wrap(spacing: 8, children: [
               ElevatedButton(
-                onPressed: connState.scanning ? null : () => mgr.scanBle(),
+                onPressed: connState.scanning
+                    ? null
+                    : () async {
+                        final ok = await AppPermissions.ensureBleScan();
+                        if (ok) {
+                          await mgr.scanBle();
+                        } else {
+                          // ignore: use_build_context_synchronously
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('İzin gerekli: Bluetooth/konum')));
+                        }
+                      },
                 child: Text(connState.scanning ? 'BLE Tarama...' : 'BLE Tara'),
               ),
               ElevatedButton(

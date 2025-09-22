@@ -8,6 +8,13 @@ flutter pub get
 flutter test
 ```
 
+### Import 10k+ DTC seeds
+Fill `tools/dtc_seed_template.csv` (TR/EN original content, manufacturer required) and convert:
+```bash
+dart tools/convert_csv_to_json.dart tools/dtc_seed_template.csv assets/
+```
+On first run, the app seeds the SQLite DB. For very large datasets, allow time for seeding.
+
 ## Permissions
 - Android 12+: BLUETOOTH_SCAN, BLUETOOTH_CONNECT
 - Location (BLE scan on Android)
