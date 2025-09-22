@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/connection_manager.dart';
 import '../../core/app_settings.dart';
 import '../widgets/drive_warning.dart';
+import 'scan.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -62,6 +63,11 @@ class HomeScreen extends ConsumerWidget {
                 child: const Text('WiFi Bağlan'),
               ),
             ]),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ScanScreen())),
+              child: const Text('Tarama Ekranı'),
+            ),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),

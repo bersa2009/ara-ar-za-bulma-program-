@@ -38,7 +38,7 @@ final bleInstanceProvider = Provider<FlutterReactiveBle>((ref) => FlutterReactiv
 
 final discoveredDevicesProvider = StateProvider<List<DiscoveredDeviceInfo>>((ref) => const []);
 final connectionStateProvider = StateProvider<ConnectionStateModel>((ref) => const ConnectionStateModel());
-final elmClientProvider = Provider<Elm327Client?>((ref) => null);
+final elmClientProvider = StateProvider<Elm327Client?>((ref) => null);
 
 class ConnectionManager {
   ConnectionManager(this.ref);
@@ -83,6 +83,7 @@ class ConnectionManager {
     try {
       await client.initialize();
       ref.read(connectionStateProvider.notifier).state = const ConnectionStateModel(connecting: false, connectedDevice: 'BLE');
+      ref.read(elmClientProvider.notifier).state = client;
       return client;
     } catch (e) {
       ref.read(connectionStateProvider.notifier).state = ConnectionStateModel(error: e.toString());
@@ -97,6 +98,7 @@ class ConnectionManager {
     try {
       await client.initialize();
       ref.read(connectionStateProvider.notifier).state = const ConnectionStateModel(connecting: false, connectedDevice: 'Classic');
+      ref.read(elmClientProvider.notifier).state = client;
       return client;
     } catch (e) {
       ref.read(connectionStateProvider.notifier).state = ConnectionStateModel(error: e.toString());
@@ -111,6 +113,7 @@ class ConnectionManager {
     try {
       await client.initialize();
       ref.read(connectionStateProvider.notifier).state = const ConnectionStateModel(connecting: false, connectedDevice: 'WiFi');
+      ref.read(elmClientProvider.notifier).state = client;
       return client;
     } catch (e) {
       ref.read(connectionStateProvider.notifier).state = ConnectionStateModel(error: e.toString());
