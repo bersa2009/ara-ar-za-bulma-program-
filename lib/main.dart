@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'ui/screens/home.dart';
+import 'ui/screens/home_screen.dart' as menu;
 import 'ui/screens/settings.dart';
 import 'ui/theme.dart';
 import 'core/app_settings.dart';
+import 'ui/screens/scan.dart';
+import 'ui/screens/placeholders.dart';
 
 void main() {
   runApp(const StrcarApp());
@@ -36,9 +38,19 @@ class _AppRoot extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const HomeScreen(),
+      initialRoute: '/home',
       routes: {
+        '/home': (_) => const menu.HomeScreen(),
         '/settings': (_) => const SettingsScreen(),
+        '/scan': (_) => const ScanScreen(),
+        '/clear': (_) => const PlaceholderScreen(title: 'Arıza Kodu Temizleme'),
+        '/battery': (_) => const PlaceholderScreen(title: 'Akü Ömrü'),
+        '/realtime': (_) => const PlaceholderScreen(title: 'Gerçek Zamanlı Veri'),
+        '/display': (_) => const PlaceholderScreen(title: 'Görünen Bilgiler'),
+        '/maintenance': (_) => const PlaceholderScreen(title: 'Muayene ve Bakım'),
+        '/o2sensor': (_) => const PlaceholderScreen(title: 'O2 Sensörü İzleme'),
+        '/odometer': (_) => const PlaceholderScreen(title: 'Kilometre'),
+        '/dtc_list': (_) => const PlaceholderScreen(title: 'Genel DTC Listesi'),
       },
     );
   }
