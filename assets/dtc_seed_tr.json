@@ -18,6 +18,56 @@
     "license": "Strcar ekibinin orijinal içeriği."
   },
   {
+    "code": "P0301",
+    "system": "Powertrain",
+    "is_generic": true,
+    "title": "1. Silindir Ateşleme Hatası",
+    "description": "1. silindirde ateşleme hatası tespit edildi.",
+    "causes": ["Bujide/bobinde sorun", "Enjektör problemi", "Kompresyon düşüklüğü"],
+    "fixes": ["Bujiyi/bobini kontrol edin", "Enjektörü kontrol edin", "Kompresyon testi"],
+    "license": "Strcar ekibinin orijinal içeriği."
+  },
+  {
+    "code": "P0302",
+    "system": "Powertrain",
+    "is_generic": true,
+    "title": "2. Silindir Ateşleme Hatası",
+    "description": "2. silindirde ateşleme hatası tespit edildi.",
+    "causes": ["Bujide/bobinde sorun", "Enjektör problemi", "Kompresyon düşüklüğü"],
+    "fixes": ["Bujiyi/bobini kontrol edin", "Enjektörü kontrol edin", "Kompresyon testi"],
+    "license": "Strcar ekibinin orijinal içeriği."
+  },
+  {
+    "code": "P0101",
+    "system": "Powertrain",
+    "is_generic": true,
+    "title": "Kütle/Hacimsel Hava Akışı Devresi Aralığı/Performansı",
+    "description": "MAF sensöründe performans sorunu tespit edildi.",
+    "causes": ["Kirli MAF", "Tesisat/konektör arızası", "Hava kaçağı"],
+    "fixes": ["MAF temizliği/değişimi", "Tesisatı onarın", "Kaçakları giderin"],
+    "license": "Strcar ekibinin orijinal içeriği."
+  },
+  {
+    "code": "P0113",
+    "system": "Powertrain",
+    "is_generic": true,
+    "title": "Emme Hava Sıcaklık Sensörü 1 Devresi Yüksek",
+    "description": "IAT sensörü devresi yüksek (muhtemel açık devre).",
+    "causes": ["Açık devre", "Sensör arızası", "Konektör sorunu"],
+    "fixes": ["Tesisatı onarın", "Sensörü değiştirin", "Konektörü kontrol edin"],
+    "license": "Strcar ekibinin orijinal içeriği."
+  },
+  {
+    "code": "P0128",
+    "system": "Powertrain",
+    "is_generic": true,
+    "title": "Soğutma Termostatı (Sıcaklık Regülasyonunun Altında)",
+    "description": "Motor yeterli çalışma sıcaklığına ulaşmıyor.",
+    "causes": ["Açık kalan termostat", "Düşük soğutma suyu", "ECT sensör arızası"],
+    "fixes": ["Termostat değişimi", "Soğutma suyu seviyesini tamamlayın", "ECT test edin"],
+    "license": "Strcar ekibinin orijinal içeriği."
+  },
+  {
     "code": "P0420",
     "system": "Powertrain",
     "is_generic": true,
@@ -58,8 +108,8 @@
     "system": "Bilgi",
     "is_generic": true,
     "title": "Tohum veri lisansı",
-    "description": "Bu TR tohum içeriği Strcar ekibi tarafından orijinal olarak yazılmıştır. Wikipedia'dan türetilen içerik eklenirse CC BY-SA 4.0 koşullarına uyun: atıf ve paylaşıma-aynı lisans.",
-    "license": "CC BY-SA 4.0 yalnızca Wikipedia kaynaklı türev içerik için geçerlidir."
+    "description": "Orijinal TR tohum içeriği © Strcar. Wikipedia'dan genişletme yapılırsa atıf verin ve paylaşıma-aynı (CC BY-SA 4.0) uygulayın (yalnızca türev metinler için).",
+    "license": "Orijinal içerik © Strcar. Wikipedia türev metin: CC BY-SA 4.0."
   }
 ]
 

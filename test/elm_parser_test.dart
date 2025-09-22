@@ -8,6 +8,10 @@ void main() {
       final vin = ElmParser.parseVin(raw);
       expect(vin, 'WZZZZ123456789ABC');
     });
+    test('returns null when NO DATA', () {
+      final vin = ElmParser.parseVin('NO DATA');
+      expect(vin, isNull);
+    });
   });
 
   group('ElmParser DTC', () {
@@ -17,6 +21,16 @@ void main() {
       final codes = ElmParser.parseDtcs(raw, expectedMode: 0x43);
       expect(codes.isNotEmpty, true);
       expect(codes.first.startsWith('P'), true);
+    });
+    test('handles SEARCHING and header noise', () {
+      final raw = 'SEARCHING... 43 01 01 0A 00 00';
+      final codes = ElmParser.parseDtcs(raw, expectedMode: 0x43);
+      expect(codes.isNotEmpty, true);
+    });
+    test('returns empty on no faults', () {
+      final raw = '43 00 00 00 00';
+      final codes = ElmParser.parseDtcs(raw, expectedMode: 0x43);
+      expect(codes.isEmpty, true);
     });
   });
 }
