@@ -45,8 +45,11 @@ void main(List<String> args) async {
     final code = getOr('code', '').toUpperCase();
     if (code.isEmpty) { skipped++; continue; }
     final system = getOr('system', 'Powertrain');
-    final isGeneric = getOr('is_generic', 'true').toLowerCase() == 'true';
     final manufacturer = getOpt('manufacturer');
+    // If is_generic column missing, infer from manufacturer value
+    final isGeneric = getOr('is_generic', manufacturer == null || manufacturer.isEmpty || manufacturer == 'generic' ? 'true' : 'false').toLowerCase() == 'true';
+    final manufacturer2 = getOpt('manufacturer');
+    final isGeneric2 = getOr('is_generic', manufacturer2 == null || manufacturer2.isEmpty || manufacturer2 == 'generic' ? 'true' : 'false').toLowerCase() == 'true';
     if (requireManufacturer && (manufacturer == null || manufacturer.isEmpty)) {
       stderr.writeln('Row $i missing manufacturer for code $code.');
       errors++;
@@ -67,8 +70,8 @@ void main(List<String> args) async {
     tr.add({
       'code': code,
       'system': system,
-      'manufacturer': manufacturer,
-      'is_generic': isGeneric,
+      'manufacturer': manufacturer2,
+      'is_generic': isGeneric2,
       'title': getOr('title_tr', code),
       'description': getOr('description_tr', ''),
       'causes': _splitList(getOr('causes_tr', '')),

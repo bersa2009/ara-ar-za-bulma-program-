@@ -45,6 +45,13 @@ dart tools/convert_csv_to_json.dart tools/dtc_seed_template.csv assets/
 # dart tools/convert_csv_to_json.dart tools/dtc_seed_template.csv assets/ --no-require-manufacturer
 ```
 
+### Generate 10k+ DTCs (templated)
+```bash
+dart tools/generate_sae_dtc.dart --out-csv tools/dtc_seed_template.csv --langs en,tr \
+  --include-manufacturers toyota,vw,ford,bmw,mercedes --target-count 10000
+dart tools/convert_csv_to_json.dart tools/dtc_seed_template.csv assets/
+```
+
 After conversion, the app will seed the SQLite DB on first run. For very large seed files (10k+), initial seeding may take a minute on older devices.
 
 ## Features
