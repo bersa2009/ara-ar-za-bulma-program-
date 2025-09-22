@@ -21,6 +21,18 @@ class HomeScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const DriveWarningBanner(),
+            if (!settings.privacyConsent)
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(children: [
+                  const Text('KVKK/GDPR: Tanılama verileri sadece cihazınızda saklanır. İzin verirseniz PDF dışa aktarabilirsiniz.'),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () => settings.setPrivacyConsent(true),
+                    child: const Text('Onaylıyorum'),
+                  ),
+                ]),
+              ),
             const Text(
               'Strcar OBD Bağlantısı',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),

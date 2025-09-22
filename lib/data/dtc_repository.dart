@@ -103,6 +103,20 @@ class DtcRepository {
     }
   }
 
+  Future<int> count() async {
+    final db = await _openDb();
+    final res = await db.rawQuery('SELECT COUNT(*) as c FROM dtc');
+    return (res.first['c'] as int?) ?? 0;
+  }
+
+  Future<void> ensureSeeded(List<String> langs) async {
+    final c = await count();
+    if (c > 1000) return; // already seeded substantially
+    for (final lang in langs) {
+      await seedFromAssets(lang: lang);
+    }
+  }
+
   Future<Map<String, dynamic>?> getDtc(String code, {required String lang}) async {
     final db = await _openDb();
     final upper = code.toUpperCase();
