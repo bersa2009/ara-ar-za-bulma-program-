@@ -3,6 +3,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'ui/screens/home.dart';
 import 'ui/screens/settings.dart';
+import 'ui/theme.dart';
+import 'core/app_settings.dart';
 
 void main() {
   runApp(const StrcarApp());
@@ -22,14 +24,12 @@ class _AppRoot extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // For brevity, using defaults; Settings screen controls theme/lang.
+    final settings = ref.watch(appSettingsProvider);
     return MaterialApp(
       title: 'Strcar OBD Scanner',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      theme: AppThemes.light(colorblind: settings.colorblindFriendly),
+      darkTheme: AppThemes.dark(colorblind: settings.colorblindFriendly),
+      themeMode: settings.themeMode,
       supportedLocales: const [Locale('tr'), Locale('en')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:path_provider/path_provider.dart';
+import '../../data/dtc_repository.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
@@ -14,8 +15,9 @@ class ReportItem {
 }
 
 class ReportScreen extends StatelessWidget {
-  const ReportScreen({super.key, required this.items});
+  const ReportScreen({super.key, required this.items, this.lang = 'tr'});
   final List<ReportItem> items;
+  final String lang;
 
   @override
   Widget build(BuildContext context) {
@@ -41,16 +43,37 @@ class ReportScreen extends StatelessWidget {
             subtitle: Text(it.title),
             onTap: () => showDialog(
               context: context,
-              builder: (ctx) => AlertDialog(
-                title: Text(it.code),
-                content: Text(it.title),
-                actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Kapat'))],
+              builder: (ctx) => FutureBuilder<Map<String, dynamic>?>(
+                future: DtcRepository().getDtc(it.code, lang: lang),
+                builder: (ctx, snap) {
+                  final data = snap.data;
+                  final desc = data?['description'] ?? it.title;
+                  final causes = (data?['causes'] as List?)?.join(', ') ?? '';
+                  final fixes = (data?['fixes'] as List?)?.join(', ') ?? '';
+                  return AlertDialog(
+                    title: Text(it.code),
+                    content: SingleChildScrollView(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(desc),
+                        const SizedBox(height: 8),
+                        if (causes.isNotEmpty) Text('Nedenler: $causes'),
+                        if (fixes.isNotEmpty) Text('Çözümler: $fixes'),
+                      ]),
+                    ),
+                    actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Kapat'))],
+                  );
+                },
               ),
             ),
             onLongPress: () async {
               final tts = FlutterTts();
               await tts.setLanguage('tr-TR');
-              await tts.speak('${it.code}, ${it.title}');
+              final data = await DtcRepository().getDtc(it.code, lang: lang);
+              final desc = data?['description'] ?? it.title;
+              final causes = (data?['causes'] as List?)?.join(', ');
+              final fixes = (data?['fixes'] as List?)?.join(', ');
+              final text = [it.code, desc, if (causes != null) 'Nedenler: $causes', if (fixes != null) 'Çözümler: $fixes'].join('. ');
+              await tts.speak(text);
             },
           );
         },

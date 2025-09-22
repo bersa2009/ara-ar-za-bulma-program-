@@ -24,32 +24,47 @@ void main(List<String> args) async {
   for (var i = 1; i < csv.length; i++) {
     final line = csv[i];
     if (line.trim().isEmpty) continue;
-    // naive CSV split handling quotes by replacing "," inside quotes with a sentinel
+    // naive CSV split respecting quotes
     final parts = _smartSplit(line);
-    String get(String key) => parts[idx[key]!] ;
-    final code = get('code').toUpperCase();
-    final system = get('system');
-    final isGeneric = get('is_generic').toLowerCase() == 'true';
+    String getOr(String key, String def) {
+      final i = idx[key];
+      if (i == null || i >= parts.length) return def;
+      final v = parts[i].trim();
+      return v.isEmpty ? def : v;
+    }
+    String? getOpt(String key) {
+      final i = idx[key];
+      if (i == null || i >= parts.length) return null;
+      final v = parts[i].trim();
+      return v.isEmpty ? null : v;
+    }
+    final code = getOr('code', '').toUpperCase();
+    if (code.isEmpty) continue;
+    final system = getOr('system', 'Powertrain');
+    final isGeneric = getOr('is_generic', 'true').toLowerCase() == 'true';
+    final manufacturer = getOpt('manufacturer');
 
     en.add({
       'code': code,
       'system': system,
+      'manufacturer': manufacturer,
       'is_generic': isGeneric,
-      'title': get('title_en'),
-      'description': get('description_en'),
-      'causes': _splitList(get('causes_en')),
-      'fixes': _splitList(get('fixes_en')),
-      'license': get('license'),
+      'title': getOr('title_en', code),
+      'description': getOr('description_en', ''),
+      'causes': _splitList(getOr('causes_en', '')),
+      'fixes': _splitList(getOr('fixes_en', '')),
+      'license': getOr('license', 'Original content © Strcar (TR/EN)'),
     });
     tr.add({
       'code': code,
       'system': system,
+      'manufacturer': manufacturer,
       'is_generic': isGeneric,
-      'title': get('title_tr'),
-      'description': get('description_tr'),
-      'causes': _splitList(get('causes_tr')),
-      'fixes': _splitList(get('fixes_tr')),
-      'license': get('license'),
+      'title': getOr('title_tr', code),
+      'description': getOr('description_tr', ''),
+      'causes': _splitList(getOr('causes_tr', '')),
+      'fixes': _splitList(getOr('fixes_tr', '')),
+      'license': getOr('license', 'Orijinal içerik © Strcar (TR/EN)'),
     });
   }
 
