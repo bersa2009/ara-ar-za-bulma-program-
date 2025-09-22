@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:strcar/elm/elm327_client.dart';
 import 'package:strcar/elm/mock_elm_transport.dart';
+import 'package:strcar/core/wmi_brands.dart';
 
 void main() {
   test('Brand detection from VIN WMI', () async {
@@ -20,7 +21,7 @@ void main() {
     await c.initialize();
     final vin = await c.readVin();
     final brand = c.detectBrandFromVin(vin);
-    expect(brand, 'Volkswagen');
+    expect(brand, wmiToBrand['WVW']);
   });
 }
 

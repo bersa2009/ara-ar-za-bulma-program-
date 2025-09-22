@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/connection_manager.dart';
-import '../../core/app_settings.dart';
 import '../../core/permissions.dart';
 import '../widgets/drive_warning.dart';
 import 'scan.dart';
+import 'settings.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});

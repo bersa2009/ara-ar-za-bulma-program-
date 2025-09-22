@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart' as spp;
 
 import '../elm/elm327_client.dart';
-import '../elm/elm_transport.dart';
 import '../elm/wifi_elm_transport.dart';
 import '../elm/ble_elm_transport.dart';
 import '../elm/classic_elm_transport.dart';

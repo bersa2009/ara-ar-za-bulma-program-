@@ -52,11 +52,9 @@ class ElmParser {
       }
     }
     final vin = ascii.isEmpty ? null : utf8.decode(ascii).replaceAll(' ', '');
-    if (vin != null && vin.length >= 17) {
-      // VIN is 17 chars; take the first 17 if longer
-      return vin.substring(0, 17);
-    }
-    return null;
+    if (vin == null || vin.length < 3) return null;
+    // If full 17 isn't available, return best-effort string for brand/WMI usage
+    return vin.length >= 17 ? vin.substring(0, 17) : vin;
   }
 
   /// Parses DTC codes from Mode 03/07/0A responses.

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'ui/screens/home_screen.dart' as menu;
 import 'ui/screens/settings.dart';
 import 'ui/theme.dart';
-import 'core/app_settings.dart';
 import 'ui/screens/scan.dart';
 import 'ui/screens/placeholders.dart';
 
@@ -49,7 +48,7 @@ class _AppRoot extends ConsumerWidget {
         '/display': (_) => const PlaceholderScreen(title: 'Görünen Bilgiler'),
         '/maintenance': (_) => const PlaceholderScreen(title: 'Muayene ve Bakım'),
         '/o2sensor': (_) => const PlaceholderScreen(title: 'O2 Sensörü İzleme'),
-        '/odometer': (_) => const PlaceholderScreen(title: 'Kilometre'),
+        '/vin': (_) => const PlaceholderScreen(title: 'Araç Kimlik Numarası (VIN)'),
         '/dtc_list': (_) => const PlaceholderScreen(title: 'Genel DTC Listesi'),
       },
     );
