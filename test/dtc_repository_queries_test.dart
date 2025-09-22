@@ -15,5 +15,5 @@ void main() {
     final after = await repo.count();
     expect(after >= before, true);
     await repo.close();
-  }, skip: 'requires sqlite3 native library in this test environment');
+  });
 }
