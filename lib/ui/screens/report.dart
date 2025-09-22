@@ -90,7 +90,7 @@ class ReportScreen extends StatelessWidget {
         build: (ctx) => [
           pw.Text('Strcar - DTC Raporu', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
           pw.SizedBox(height: 16),
-          pw.Table.fromTextArray(
+          pw.TableHelper.fromTextArray(
             headers: ['Code', 'Title', 'Severity'],
             data: items.map((e) => [e.code, e.title, e.severe ? 'High' : 'Medium']).toList(),
           )
