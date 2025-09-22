@@ -1,0 +1,65 @@
+[
+  {
+    "code": "P0300",
+    "system": "Powertrain",
+    "is_generic": true,
+    "title": "Random/Multiple Cylinder Misfire Detected",
+    "description": "The PCM detected multiple random misfires across cylinders.",
+    "causes": [
+      "Worn spark plugs or ignition coils",
+      "Vacuum leaks",
+      "Fuel delivery issues"
+    ],
+    "fixes": [
+      "Inspect/replace spark plugs and coils",
+      "Check for vacuum leaks",
+      "Test fuel pressure"
+    ],
+    "license": "Original content by Strcar team."
+  },
+  {
+    "code": "P0420",
+    "system": "Powertrain",
+    "is_generic": true,
+    "title": "Catalyst System Efficiency Below Threshold (Bank 1)",
+    "description": "Catalytic converter efficiency is below threshold.",
+    "causes": [
+      "Failing catalytic converter",
+      "Exhaust leaks",
+      "Faulty O2 sensors"
+    ],
+    "fixes": [
+      "Verify exhaust leaks",
+      "Check upstream/downstream O2 sensors",
+      "Assess catalytic converter"
+    ],
+    "license": "Original content by Strcar team."
+  },
+  {
+    "code": "P0171",
+    "system": "Powertrain",
+    "is_generic": true,
+    "title": "System Too Lean (Bank 1)",
+    "description": "The air-fuel mixture is too lean on bank 1.",
+    "causes": [
+      "Vacuum leak",
+      "MAF sensor contamination",
+      "Low fuel pressure"
+    ],
+    "fixes": [
+      "Smoke test for leaks",
+      "Clean/replace MAF",
+      "Measure fuel pressure"
+    ],
+    "license": "Original content by Strcar team."
+  },
+  {
+    "code": "LICENSE_NOTE",
+    "system": "Info",
+    "is_generic": true,
+    "title": "Seed data licensing",
+    "description": "This EN seed content is original by Strcar team. When expanding using Wikipedia data, comply with CC BY-SA 4.0: provide attribution and keep share-alike for derived text.",
+    "license": "CC BY-SA 4.0 applies only to content derived from Wikipedia."
+  }
+]
+

@@ -1,0 +1,65 @@
+[
+  {
+    "code": "P0300",
+    "system": "Powertrain",
+    "is_generic": true,
+    "title": "Rastgele/Çoklu Silindir Ateşleme Hatası",
+    "description": "PCM, birden fazla silindirde rastgele ateşleme hataları tespit etti.",
+    "causes": [
+      "Aşınmış bujiler veya bobinler",
+      "Vakum kaçakları",
+      "Yakıt besleme problemleri"
+    ],
+    "fixes": [
+      "Bujileri/bobinleri kontrol edin ve gerektiğinde değiştirin",
+      "Vakum kaçak testi yapın",
+      "Yakıt basıncını ölçün"
+    ],
+    "license": "Strcar ekibinin orijinal içeriği."
+  },
+  {
+    "code": "P0420",
+    "system": "Powertrain",
+    "is_generic": true,
+    "title": "Katalizör Verimliliği Eşik Altında (Bank 1)",
+    "description": "Katalitik konvertör verimliliği eşik seviyesinin altında.",
+    "causes": [
+      "Arızalı katalitik konvertör",
+      "Egzoz kaçakları",
+      "Hatalı O2 sensörleri"
+    ],
+    "fixes": [
+      "Egzoz kaçaklarını kontrol edin",
+      "Yukarı/aşağı O2 sensörlerini test edin",
+      "Katalitik konvertörü değerlendirin"
+    ],
+    "license": "Strcar ekibinin orijinal içeriği."
+  },
+  {
+    "code": "P0171",
+    "system": "Powertrain",
+    "is_generic": true,
+    "title": "Sistem Fazla Fakir (Bank 1)",
+    "description": "Bank 1'de hava-yakıt karışımı fazla fakir.",
+    "causes": [
+      "Vakum kaçağı",
+      "MAF sensörü kirlenmesi",
+      "Düşük yakıt basıncı"
+    ],
+    "fixes": [
+      "Duman testi ile kaçak kontrolü",
+      "MAF temizliği/değişimi",
+      "Yakıt basıncını ölçün"
+    ],
+    "license": "Strcar ekibinin orijinal içeriği."
+  },
+  {
+    "code": "LISANS_NOTU",
+    "system": "Bilgi",
+    "is_generic": true,
+    "title": "Tohum veri lisansı",
+    "description": "Bu TR tohum içeriği Strcar ekibi tarafından orijinal olarak yazılmıştır. Wikipedia'dan türetilen içerik eklenirse CC BY-SA 4.0 koşullarına uyun: atıf ve paylaşıma-aynı lisans.",
+    "license": "CC BY-SA 4.0 yalnızca Wikipedia kaynaklı türev içerik için geçerlidir."
+  }
+]
+

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'elm_transport.dart';
+import 'elm_parser.dart';
 
 class DtcCode {
   final String code;
@@ -27,18 +28,33 @@ class Elm327Client {
 
   Future<String?> readVin() async {
     final res = await _cmd('0902');
-    return _parseVin(res);
+    return ElmParser.parseVin(res);
   }
 
   Future<List<DtcCode>> readDtcs() async {
     final stored = await _cmd('03');
     final pending = await _cmd('07');
     final permanent = await _cmd('0A');
-    return _parseDtcs({
-      'stored': stored,
-      'pending': pending,
-      'permanent': permanent,
-    });
+    final storedCodes = ElmParser.parseDtcs(stored, expectedMode: 0x43);
+    final pendingCodes = ElmParser.parseDtcs(pending, expectedMode: 0x47);
+    final permanentCodes = ElmParser.parseDtcs(permanent, expectedMode: 0x4A);
+    final List<DtcCode> all = [];
+    for (final c in storedCodes) {
+      all.add(DtcCode(code: c, source: 'stored'));
+    }
+    for (final c in pendingCodes) {
+      all.add(DtcCode(code: c, source: 'pending'));
+    }
+    for (final c in permanentCodes) {
+      all.add(DtcCode(code: c, source: 'permanent'));
+    }
+    // de-duplicate by code keeping first occurrence
+    final seen = <String>{};
+    final unique = <DtcCode>[];
+    for (final d in all) {
+      if (seen.add(d.code)) unique.add(d);
+    }
+    return unique;
   }
 
   Future<void> clearDtcs() async {
@@ -54,34 +70,6 @@ class Elm327Client {
     return res;
   }
 
-  // Minimal VIN parse placeholder; to be replaced with robust ISO-TP handling
-  String? _parseVin(String raw) {
-    final cleaned = raw
-        .replaceAll('SEARCHING...', '')
-        .replaceAll('NO DATA', '')
-        .replaceAll(RegExp(r'\s'), '')
-        .toUpperCase();
-    // Very naive: look for 17-char alnum sequence
-    final match = RegExp(r'[A-Z0-9]{17}').firstMatch(cleaned);
-    return match?.group(0);
-  }
-
-  // Minimal DTC parse placeholder; proper implementation will decode hex frames
-  List<DtcCode> _parseDtcs(Map<String, String> responses) {
-    final List<DtcCode> all = [];
-    responses.forEach((source, text) {
-      final codes = _extractPLikeCodes(text);
-      for (final c in codes) {
-        all.add(DtcCode(code: c, source: source));
-      }
-    });
-    return all;
-  }
-
-  List<String> _extractPLikeCodes(String text) {
-    final cleaned = text.toUpperCase();
-    final matches = RegExp(r'[PCBU][0-9]{4}').allMatches(cleaned);
-    return matches.map((m) => m.group(0)!).toSet().toList();
-  }
+  // Old naive parsers removed in favor of ElmParser
 }
 
