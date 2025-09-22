@@ -15,7 +15,15 @@ class HomeScreen extends ConsumerWidget {
     final mgr = ref.read(connectionManagerProvider);
     final settings = ref.watch(appSettingsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Strcar - Arıza Teşhisi')),
+      appBar: AppBar(
+        title: const Text('Strcar - Arıza Teşhisi'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => Navigator.pushNamed(context, '/settings'),
+          )
+        ],
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

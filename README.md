@@ -14,9 +14,16 @@ flutter test
 - iOS: Bluetooth (BLE) usage description, Local network (for WiFi adapters)
 
 ## Devices (recommended)
-- BLE: Vgate iCar Pro BLE, OBDLink MX+
+- BLE: Vgate iCar Pro BLE, OBDLink MX+, Panlong BLE
 - Classic (Android): Vgate iCar Pro BT 3.0, BAFX
 - WiFi: OBDLink MX WiFi, generic ELM327 mini
+
+### Compatibility Matrix (target)
+| Transport | Brand examples |
+| --- | --- |
+| BLE | Vgate iCar Pro BLE, OBDLink MX+, Panlong |
+| Classic (Android) | Vgate iCar Pro BT 3.0, BAFX |
+| WiFi | OBDLink MX WiFi, ELM327 mini WiFi |
 
 ## Legal & Safety
 - Do not use the app while driving.
@@ -27,7 +34,18 @@ flutter test
 - Edit with CSV: see `tools/dtc_seed_template.csv` and run converter:
 ```bash
 dart tools/convert_csv_to_json.dart tools/dtc_seed_template.csv assets/
+# manufacturer is required by default; to relax:
+# dart tools/convert_csv_to_json.dart tools/dtc_seed_template.csv assets/ --no-require-manufacturer
 ```
+
+After conversion, the app will seed the SQLite DB on first run. For very large seed files (10k+), initial seeding may take a minute on older devices.
+
+## Features
+- Universal DTC read (03/07/0A) and clear (04)
+- VIN read (09-02) and brand hint via WMI
+- BLE/Classic/WiFi transports
+- Local DTC DB (TR/EN) with titles/descriptions/causes/fixes
+- PDF export and TTS reading
 
 ## Beta
 - Android: Internal Testing track (Play Console)
