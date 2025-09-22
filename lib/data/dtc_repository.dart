@@ -20,6 +20,18 @@ class DtcRepository {
       onCreate: (db, version) async {
         await _createSchema(db);
       },
+      onOpen: (db) async {
+        // Performance pragmas for large seed imports
+        await db.execute('PRAGMA journal_mode=WAL;');
+        await db.execute('PRAGMA synchronous=NORMAL;');
+        // Migrate if needed (ensure manufacturer column exists)
+        final info = await db.rawQuery("PRAGMA table_info('dtc')");
+        final hasManufacturer = info.any((c) => (c['name'] as String).toLowerCase() == 'manufacturer');
+        if (!hasManufacturer) {
+          await db.execute('ALTER TABLE dtc ADD COLUMN manufacturer TEXT;');
+          await db.execute('CREATE INDEX IF NOT EXISTS idx_dtc_manufacturer ON dtc(manufacturer);');
+        }
+      },
     );
     return _db!;
   }
@@ -46,6 +58,8 @@ class DtcRepository {
       );
     ''');
     await db.execute('CREATE INDEX idx_dtc_i18n_code_lang ON dtc_i18n(code, lang);');
+    await db.execute('CREATE INDEX idx_dtc_system ON dtc(system);');
+    await db.execute('CREATE INDEX idx_dtc_manufacturer ON dtc(manufacturer);');
   }
 
   Future<void> seedFromAssets({required String lang}) async {
@@ -53,33 +67,40 @@ class DtcRepository {
     final assetPath = 'assets/dtc_seed_${lang}.json';
     final jsonStr = await rootBundle.loadString(assetPath);
     final List<dynamic> list = json.decode(jsonStr) as List<dynamic>;
-    final batch = db.batch();
-    for (final item in list) {
-      final map = item as Map<String, dynamic>;
-      final code = (map['code'] as String).toUpperCase();
-      final system = map['system'] as String? ?? 'Powertrain';
-      final isGeneric = (map['is_generic'] as bool? ?? true) ? 1 : 0;
-      final manufacturer = map['manufacturer'] as String?;
-      final title = map['title'] as String? ?? '';
-      final description = map['description'] as String?;
-      final causes = map['causes'];
-      final fixes = map['fixes'];
-      batch.insert('dtc', {
-        'code': code,
-        'system': system,
-        'manufacturer': manufacturer,
-        'is_generic': isGeneric,
-      }, conflictAlgorithm: ConflictAlgorithm.ignore);
-      batch.insert('dtc_i18n', {
-        'code': code,
-        'lang': lang,
-        'title': title,
-        'description': description,
-        'causes': causes == null ? null : json.encode(causes),
-        'fixes': fixes == null ? null : json.encode(fixes),
-      }, conflictAlgorithm: ConflictAlgorithm.replace);
+    // Chunk inserts to avoid huge batches
+    const int chunkSize = 1000;
+    for (int i = 0; i < list.length; i += chunkSize) {
+      final chunk = list.sublist(i, i + chunkSize > list.length ? list.length : i + chunkSize);
+      await db.transaction((txn) async {
+        final batch = txn.batch();
+        for (final item in chunk) {
+          final map = item as Map<String, dynamic>;
+          final code = (map['code'] as String).toUpperCase();
+          final system = map['system'] as String? ?? 'Powertrain';
+          final isGeneric = (map['is_generic'] as bool? ?? true) ? 1 : 0;
+          final manufacturer = map['manufacturer'] as String?;
+          final title = map['title'] as String? ?? '';
+          final description = map['description'] as String?;
+          final causes = map['causes'];
+          final fixes = map['fixes'];
+          batch.insert('dtc', {
+            'code': code,
+            'system': system,
+            'manufacturer': manufacturer,
+            'is_generic': isGeneric,
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
+          batch.insert('dtc_i18n', {
+            'code': code,
+            'lang': lang,
+            'title': title,
+            'description': description,
+            'causes': causes == null ? null : json.encode(causes),
+            'fixes': fixes == null ? null : json.encode(fixes),
+          }, conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+        await batch.commit(noResult: true);
+      });
     }
-    await batch.commit(noResult: true);
   }
 
   Future<Map<String, dynamic>?> getDtc(String code, {required String lang}) async {
@@ -116,6 +137,25 @@ class DtcRepository {
       LEFT JOIN dtc_i18n i ON i.code = d.code AND i.lang = ?
       WHERE d.code IN ($placeholders)
     ''', [lang, ...uppers]);
+    return rows.map((row) => {
+          'code': row['code'],
+          'system': row['system'],
+          'is_generic': row['is_generic'] == 1,
+          'title': row['title'],
+          'description': row['description'],
+          'causes': _maybeDecodeJson(row['causes']),
+          'fixes': _maybeDecodeJson(row['fixes']),
+        }).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getByManufacturer(String manufacturer, {required String lang}) async {
+    final db = await _openDb();
+    final rows = await db.rawQuery('''
+      SELECT d.code, d.system, d.is_generic, i.title, i.description, i.causes, i.fixes
+      FROM dtc d
+      LEFT JOIN dtc_i18n i ON i.code = d.code AND i.lang = ?
+      WHERE d.manufacturer = ?
+    ''', [lang, manufacturer]);
     return rows.map((row) => {
           'code': row['code'],
           'system': row['system'],

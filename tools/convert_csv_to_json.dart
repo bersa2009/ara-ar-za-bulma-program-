@@ -3,11 +3,12 @@ import 'dart:io';
 
 void main(List<String> args) async {
   if (args.length < 2) {
-    stderr.writeln('Usage: dart tools/convert_csv_to_json.dart <csv_path> <assets_dir>');
+    stderr.writeln('Usage: dart tools/convert_csv_to_json.dart <csv_path> <assets_dir> [--require-manufacturer]');
     exit(1);
   }
   final csvPath = args[0];
   final outDir = args[1];
+  final requireManufacturer = args.contains('--require-manufacturer');
   final csv = await File(csvPath).readAsLines();
   if (csv.isEmpty) {
     stderr.writeln('Empty CSV');
@@ -21,6 +22,8 @@ void main(List<String> args) async {
   final en = <Map<String, dynamic>>[];
   final tr = <Map<String, dynamic>>[];
 
+  int skipped = 0;
+  int errors = 0;
   for (var i = 1; i < csv.length; i++) {
     final line = csv[i];
     if (line.trim().isEmpty) continue;
@@ -39,10 +42,15 @@ void main(List<String> args) async {
       return v.isEmpty ? null : v;
     }
     final code = getOr('code', '').toUpperCase();
-    if (code.isEmpty) continue;
+    if (code.isEmpty) { skipped++; continue; }
     final system = getOr('system', 'Powertrain');
     final isGeneric = getOr('is_generic', 'true').toLowerCase() == 'true';
     final manufacturer = getOpt('manufacturer');
+    if (requireManufacturer && (manufacturer == null || manufacturer.isEmpty)) {
+      stderr.writeln('Row $i missing manufacturer for code $code.');
+      errors++;
+      continue;
+    }
 
     en.add({
       'code': code,
@@ -70,7 +78,7 @@ void main(List<String> args) async {
 
   await File('$outDir/dtc_seed_en.json').writeAsString(const JsonEncoder.withIndent('  ').convert(en));
   await File('$outDir/dtc_seed_tr.json').writeAsString(const JsonEncoder.withIndent('  ').convert(tr));
-  stdout.writeln('Wrote ${en.length} EN and ${tr.length} TR codes to $outDir');
+  stdout.writeln('Wrote ${en.length} EN and ${tr.length} TR codes to $outDir (skipped: $skipped, errors: $errors)');
 }
 
 List<String> _splitList(String raw) {
