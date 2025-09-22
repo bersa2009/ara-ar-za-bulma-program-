@@ -181,6 +181,32 @@ class DtcRepository {
         }).toList();
   }
 
+  Future<List<Map<String, dynamic>>> search({required String prefix, required String lang, String? manufacturer}) async {
+    final db = await _openDb();
+    final args = <Object?>[lang, '$prefix%'];
+    final manuClause = (manufacturer != null && manufacturer.isNotEmpty) ? 'AND d.manufacturer = ?' : '';
+    if (manuClause.isNotEmpty) args.add(manufacturer);
+    final rows = await db.rawQuery('''
+      SELECT d.code, d.system, d.is_generic, d.manufacturer, i.title, i.description, i.causes, i.fixes
+      FROM dtc d
+      LEFT JOIN dtc_i18n i ON i.code = d.code AND i.lang = ?
+      WHERE d.code LIKE ?
+      $manuClause
+      ORDER BY d.code ASC
+      LIMIT 200
+    ''', args);
+    return rows.map((row) => {
+          'code': row['code'],
+          'system': row['system'],
+          'is_generic': row['is_generic'] == 1,
+          'manufacturer': row['manufacturer'],
+          'title': row['title'],
+          'description': row['description'],
+          'causes': _maybeDecodeJson(row['causes']),
+          'fixes': _maybeDecodeJson(row['fixes']),
+        }).toList();
+  }
+
   Future<void> close() async {
     await _db?.close();
     _db = null;

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/connection_manager.dart';
 import '../../elm/elm327_client.dart';
 import 'report.dart';
+import '../../data/dtc_repository.dart';
 
 class ScanScreen extends ConsumerStatefulWidget {
   const ScanScreen({super.key});
@@ -16,6 +17,10 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   List<DtcCode> dtcs = [];
   bool scanning = false;
   String? error;
+  String? manufacturerFilter;
+  final List<String> manufacturers = const [
+    'generic','alfa-romeo','aston-martin','audi','bentley','bmw','bugatti','byd','chery','citroen','cupra','dacia','ds-automobiles','ferrari','fiat','fisker','ford','honda','hyundai','infiniti','isuzu','iveco','jaguar','jeep','kia','lamborghini','land-rover','lexus','maserati','mazda','mercedes-benz','mg','mini','mitsubishi','nissan','opel','peugeot','porsche','renault','rolls-royce','seat','skoda','ssangyong','subaru','suzuki','tesla','togg','toyota','volkswagen','volvo'
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -110,6 +115,27 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                 if (vin != null) Text('VIN: $vin'),
               ],
             ),
+            const SizedBox(height: 8),
+            Row(children: [
+              const Text('Marka: ', style: TextStyle(color: Colors.white)),
+              const SizedBox(width: 8),
+              DropdownButton<String>(
+                value: manufacturerFilter,
+                hint: const Text('Seçin'),
+                dropdownColor: const Color(0xFF1E1E2F),
+                items: manufacturers
+                    .map((m) => DropdownMenuItem(value: m, child: Text(m, style: const TextStyle(color: Colors.white))))
+                    .toList(),
+                onChanged: (v) async {
+                  setState(() => manufacturerFilter = v);
+                  if (v != null) {
+                    final repo = DtcRepository();
+                    final res = await repo.search(prefix: '', lang: 'tr', manufacturer: v == 'generic' ? null : v);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Bulunan DTC (örnek): ${res.length}')));
+                  }
+                },
+              ),
+            ]),
             const SizedBox(height: 12),
             if (error != null) Text('Hata: $error', style: const TextStyle(color: Colors.red)),
             const Divider(),
