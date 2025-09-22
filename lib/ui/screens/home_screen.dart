@@ -12,12 +12,12 @@ class _HomeScreenState extends State<HomeScreen> {
     {'icon': Icons.car_repair, 'text': 'Motor Arıza Teşhisi Yapar', 'route': '/scan'},
     {'icon': Icons.delete_sweep, 'text': 'Arıza Kodu Temizleme Yapar', 'route': '/clear'},
     {'icon': Icons.battery_full, 'text': 'Akü Ömrünü Verir', 'route': '/battery'},
-    {'icon': Icons.timeline, 'text': 'Gerçek Zamanlı Veri Aksi Sığar', 'route': '/realtime'},
-    {'icon': Icons.dvr, 'text': 'Ekranda Görünen Bilgileri Okur', 'route': '/display'},
-    {'icon': Icons.build, 'text': 'Muayene ve Bakım Hazırlığı Oluşturur', 'route': '/maintenance'},
+    {'icon': Icons.timeline, 'text': 'Gerçek Zamanlı Veri Akışı Sağlar', 'route': '/realtime'},
+    {'icon': Icons.dvr, 'text': 'Ekranda Görülen Arıza Kayıt Bilgilerini Okur', 'route': '/display'},
+    {'icon': Icons.build, 'text': 'Muayene ve Bakıma Hazır Olma Durumunu Gösterir', 'route': '/maintenance'},
     {'icon': Icons.sensors, 'text': 'Oksijen Sensörü İzleme Sonuçlarını Okur', 'route': '/o2sensor'},
-    {'icon': Icons.speed, 'text': 'Araç Kilometre Okur', 'route': '/odometer'},
-    {'icon': Icons.list_alt, 'text': 'Tanısal Hata Kodunu Genel Liste', 'route': '/dtc_list'},
+    {'icon': Icons.badge, 'text': 'Araç Kimlik Numarasını Okur', 'route': '/vin'},
+    {'icon': Icons.list_alt, 'text': 'Tanısal Hata Kodu Genel Listesini İçerir', 'route': '/dtc_list'},
   ];
 
   @override
