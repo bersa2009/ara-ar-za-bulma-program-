@@ -50,6 +50,11 @@ class _AppRoot extends ConsumerWidget {
         '/o2sensor': (_) => const PlaceholderScreen(title: 'O2 Sensörü İzleme'),
         '/vin': (_) => const PlaceholderScreen(title: 'Araç Kimlik Numarası (VIN)'),
         '/dtc_list': (_) => const PlaceholderScreen(title: 'Genel DTC Listesi'),
+        '/sensors': (_) => const PlaceholderScreen(title: 'Sensör Bilgisi'),
+        '/ai': (_) => const PlaceholderScreen(title: 'Yapay Zeka Önerileri'),
+        '/update': (_) => const PlaceholderScreen(title: 'Güncelleme'),
+        '/reports': (_) => const PlaceholderScreen(title: 'Raporlar'),
+        '/performance': (_) => const PlaceholderScreen(title: 'Performans'),
       },
     );
   }
