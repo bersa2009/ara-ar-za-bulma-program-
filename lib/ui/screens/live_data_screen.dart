@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import 'dart:math';
+import '../../utils/memory_manager.dart';
 
 class LiveDataScreen extends ConsumerStatefulWidget {
   const LiveDataScreen({super.key});
@@ -27,8 +28,7 @@ class _LiveDataScreenState extends ConsumerState<LiveDataScreen> {
 
   @override
   void dispose() {
-    _dataTimer?.cancel();
-    _dataTimer = null;
+    MemoryManager.cancelTimer('live_data_timer');
     super.dispose();
   }
 
@@ -39,6 +39,7 @@ class _LiveDataScreenState extends ConsumerState<LiveDataScreen> {
     });
 
     _dataTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      MemoryManager.registerTimer('live_data_timer', timer);
       if (mounted) {
         setState(() {
           // Simulate realistic engine data

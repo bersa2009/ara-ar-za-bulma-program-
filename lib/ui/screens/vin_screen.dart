@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/wmi_brands.dart';
 
 class VinScreen extends ConsumerStatefulWidget {
   const VinScreen({super.key});

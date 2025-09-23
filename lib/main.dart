@@ -16,8 +16,17 @@ import 'ui/screens/maintenance_screen.dart';
 import 'ui/screens/vin_screen.dart';
 import 'ui/screens/save_reports_screen.dart';
 import 'ui/screens/update_screen.dart';
+import 'services/notification_service.dart';
+import 'services/app_lifecycle_service.dart';
+import 'ui/screens/comprehensive_error_handler.dart';
 
 void main() {
+  // Initialize error handling
+  ComprehensiveErrorHandler.initialize();
+  
+  // Initialize app lifecycle management
+  AppLifecycleService().initialize();
+  
   runApp(const StrcarApp());
 }
 
@@ -41,6 +50,7 @@ class _AppRoot extends ConsumerWidget {
       theme: AppThemes.light(colorblind: settings.colorblindFriendly),
       darkTheme: AppThemes.dark(colorblind: settings.colorblindFriendly),
       themeMode: settings.themeMode,
+      scaffoldMessengerKey: NotificationService.scaffoldMessengerKey,
       supportedLocales: const [Locale('tr'), Locale('en')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

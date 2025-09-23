@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/connection_manager.dart';
 import '../../elm/elm327_client.dart';
 import '../../data/dtc_repository.dart';
+import '../error_handler.dart';
 
 class FaultDetectionScreen extends ConsumerStatefulWidget {
   const FaultDetectionScreen({super.key});

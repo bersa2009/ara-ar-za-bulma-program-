@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import 'dart:math';
+import '../../utils/memory_manager.dart';
 
 class BatteryTestScreen extends ConsumerStatefulWidget {
   const BatteryTestScreen({super.key});
@@ -40,8 +41,7 @@ class _BatteryTestScreenState extends ConsumerState<BatteryTestScreen> {
 
   @override
   void dispose() {
-    _testTimer?.cancel();
-    _testTimer = null;
+    MemoryManager.cancelTimer('battery_test_timer');
     super.dispose();
   }
 
@@ -54,6 +54,7 @@ class _BatteryTestScreenState extends ConsumerState<BatteryTestScreen> {
 
     // Simulate progressive test
     _testTimer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      MemoryManager.registerTimer('battery_test_timer', timer);
       setState(() {
         testProgress += 5;
       });
