@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, Text, View, Pressable, Modal, Platform, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Modal, Platform, FlatList, Linking } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootStackParamList } from '../../App';
@@ -59,11 +59,13 @@ export default function WelcomeScreen() {
   const visibleModels = useMemo(() => MODEL_OPTIONS[selectedBrand] ?? [], [selectedBrand]);
 
   const handleRequestBluetooth = () => {
+    Linking.openSettings().catch(() => {});
     setPromptVisible(false);
     startMockScan();
   };
 
   const handleRequestWifi = () => {
+    Linking.openSettings().catch(() => {});
     setPromptVisible(false);
     startMockScan();
   };
@@ -107,6 +109,15 @@ export default function WelcomeScreen() {
       }
     }, 500);
   };
+
+  // Cleanup interval on unmount to avoid leaks
+  useEffect(() => {
+    return () => {
+      if (progressRef.current) {
+        clearInterval(progressRef.current);
+      }
+    };
+  }, []);
 
   const handleContinue = async () => {
     await saveSelection(selectedBrand, selectedModel, selectedYear);
