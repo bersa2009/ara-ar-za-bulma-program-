@@ -12,6 +12,9 @@ class AppSettings extends ChangeNotifier {
   bool _ttsEnabled = true;
   bool _colorblindFriendly = false;
   bool _privacyConsent = false;
+  String? _selectedBrand;
+  String? _selectedModel;
+  int? _selectedYear;
 
   Locale get locale => _locale;
   ThemeMode get themeMode => _themeMode;
@@ -19,6 +22,9 @@ class AppSettings extends ChangeNotifier {
   bool get ttsEnabled => _ttsEnabled;
   bool get colorblindFriendly => _colorblindFriendly;
   bool get privacyConsent => _privacyConsent;
+  String? get selectedBrand => _selectedBrand;
+  String? get selectedModel => _selectedModel;
+  int? get selectedYear => _selectedYear;
 
   Future<void> load() async {
     final sp = await SharedPreferences.getInstance();
@@ -28,6 +34,9 @@ class AppSettings extends ChangeNotifier {
     _ttsEnabled = sp.getBool('tts') ?? true;
     _colorblindFriendly = sp.getBool('colorblind') ?? false;
     _privacyConsent = sp.getBool('privacy_consent') ?? false;
+    _selectedBrand = sp.getString('selected_brand');
+    _selectedModel = sp.getString('selected_model');
+    _selectedYear = sp.getInt('selected_year');
     _locale = Locale(lang);
     _themeMode = switch (theme) {
       'dark' => ThemeMode.dark,
@@ -89,6 +98,29 @@ class AppSettings extends ChangeNotifier {
     _privacyConsent = accepted;
     final sp = await SharedPreferences.getInstance();
     await sp.setBool('privacy_consent', accepted);
+    notifyListeners();
+  }
+
+  Future<void> setVehicleInfo({String? brand, String? model, int? year}) async {
+    _selectedBrand = brand;
+    _selectedModel = model;
+    _selectedYear = year;
+    final sp = await SharedPreferences.getInstance();
+    if (brand != null) {
+      await sp.setString('selected_brand', brand);
+    } else {
+      await sp.remove('selected_brand');
+    }
+    if (model != null) {
+      await sp.setString('selected_model', model);
+    } else {
+      await sp.remove('selected_model');
+    }
+    if (year != null) {
+      await sp.setInt('selected_year', year);
+    } else {
+      await sp.remove('selected_year');
+    }
     notifyListeners();
   }
 }

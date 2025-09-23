@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'ui/screens/home_screen.dart' as menu;
+import 'ui/screens/welcome_screen.dart';
 import 'ui/screens/settings.dart';
 import 'ui/theme.dart';
 import 'ui/screens/scan.dart';
@@ -37,8 +38,9 @@ class _AppRoot extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      initialRoute: '/home',
+      initialRoute: '/welcome',
       routes: {
+        '/welcome': (_) => const WelcomeScreen(),
         '/home': (_) => const menu.HomeScreen(),
         '/settings': (_) => const SettingsScreen(),
         '/scan': (_) => const ScanScreen(),
