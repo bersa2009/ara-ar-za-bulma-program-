@@ -12,6 +12,9 @@ class AppSettings extends ChangeNotifier {
   bool _ttsEnabled = true;
   bool _colorblindFriendly = false;
   bool _privacyConsent = false;
+  String _vehicleBrand = 'renault';
+  String _vehicleModel = 'Clio';
+  int _vehicleYear = 2018;
 
   Locale get locale => _locale;
   ThemeMode get themeMode => _themeMode;
@@ -19,6 +22,9 @@ class AppSettings extends ChangeNotifier {
   bool get ttsEnabled => _ttsEnabled;
   bool get colorblindFriendly => _colorblindFriendly;
   bool get privacyConsent => _privacyConsent;
+  String get vehicleBrand => _vehicleBrand;
+  String get vehicleModel => _vehicleModel;
+  int get vehicleYear => _vehicleYear;
 
   Future<void> load() async {
     final sp = await SharedPreferences.getInstance();
@@ -28,6 +34,9 @@ class AppSettings extends ChangeNotifier {
     _ttsEnabled = sp.getBool('tts') ?? true;
     _colorblindFriendly = sp.getBool('colorblind') ?? false;
     _privacyConsent = sp.getBool('privacy_consent') ?? false;
+    _vehicleBrand = sp.getString('vehicle_brand') ?? _vehicleBrand;
+    _vehicleModel = sp.getString('vehicle_model') ?? _vehicleModel;
+    _vehicleYear = sp.getInt('vehicle_year') ?? _vehicleYear;
     _locale = Locale(lang);
     _themeMode = switch (theme) {
       'dark' => ThemeMode.dark,
@@ -89,6 +98,27 @@ class AppSettings extends ChangeNotifier {
     _privacyConsent = accepted;
     final sp = await SharedPreferences.getInstance();
     await sp.setBool('privacy_consent', accepted);
+    notifyListeners();
+  }
+
+  Future<void> setVehicleBrand(String brand) async {
+    _vehicleBrand = brand;
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString('vehicle_brand', brand);
+    notifyListeners();
+  }
+
+  Future<void> setVehicleModel(String model) async {
+    _vehicleModel = model;
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString('vehicle_model', model);
+    notifyListeners();
+  }
+
+  Future<void> setVehicleYear(int year) async {
+    _vehicleYear = year;
+    final sp = await SharedPreferences.getInstance();
+    await sp.setInt('vehicle_year', year);
     notifyListeners();
   }
 }
