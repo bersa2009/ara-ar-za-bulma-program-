@@ -10,6 +10,168 @@ class DtcRepository {
 
   Database? _db;
 
+  // Gelişmiş DTC bilgisi için yeni metod
+  Future<Map<String, dynamic>> getDTCInfo(String dtcCode, String? manufacturer) async {
+    try {
+      final db = await _openDb();
+      final results = await db.query(
+        'dtc_codes',
+        where: 'code = ? AND (manufacturer = ? OR manufacturer IS NULL)',
+        whereArgs: [dtcCode, manufacturer],
+        limit: 1,
+      );
+
+      if (results.isNotEmpty) {
+        return {
+          'code': results.first['code'],
+          'description': results.first['description'],
+          'manufacturer': results.first['manufacturer'],
+          'severity': _determineSeverity(dtcCode),
+          'category': _getDTCCategory(dtcCode),
+          'system': _getSystemName(dtcCode),
+        };
+      }
+
+      // Eğer spesifik marka bulunamazsa genel arama yap
+      final genericResults = await db.query(
+        'dtc_codes',
+        where: 'code = ? AND manufacturer IS NULL',
+        whereArgs: [dtcCode],
+        limit: 1,
+      );
+
+      if (genericResults.isNotEmpty) {
+        return {
+          'code': genericResults.first['code'],
+          'description': genericResults.first['description'],
+          'manufacturer': null,
+          'severity': _determineSeverity(dtcCode),
+          'category': _getDTCCategory(dtcCode),
+          'system': _getSystemName(dtcCode),
+        };
+      }
+
+      // Hiç bulunamazsa genel bilgi döndür
+      return {
+        'code': dtcCode,
+        'description': _getGenericDTCDescription(dtcCode),
+        'manufacturer': manufacturer,
+        'severity': _determineSeverity(dtcCode),
+        'category': _getDTCCategory(dtcCode),
+        'system': _getSystemName(dtcCode),
+      };
+    } catch (e) {
+      return {
+        'code': dtcCode,
+        'description': 'DTC açıklaması bulunamadı',
+        'manufacturer': manufacturer,
+        'severity': 'Bilinmiyor',
+        'category': 'Genel',
+        'system': 'Bilinmiyor',
+      };
+    }
+  }
+
+  // DTC kategorisini belirle
+  String _getDTCCategory(String dtcCode) {
+    if (dtcCode.length < 2) return 'Bilinmiyor';
+    
+    final category = dtcCode[0];
+    switch (category) {
+      case 'P':
+        return 'Powertrain (Motor/Şanzıman)';
+      case 'B':
+        return 'Body (Gövde Elektroniği)';
+      case 'C':
+        return 'Chassis (Şasi Sistemleri)';
+      case 'U':
+        return 'Network (İletişim)';
+      default:
+        return 'Bilinmiyor';
+    }
+  }
+
+  // Sistem adını belirle
+  String _getSystemName(String dtcCode) {
+    if (dtcCode.length < 5) return 'Bilinmiyor';
+    
+    final systemCode = dtcCode.substring(1, 4);
+    final systemMap = {
+      '030': 'Ateşleme Sistemi',
+      '017': 'Yakıt Sistemi',
+      '042': 'Emisyon Kontrolü',
+      '012': 'Motor Soğutma',
+      '044': 'EVAP Sistemi',
+      '010': 'Hava/Yakıt Karışımı',
+      '020': 'Enjektör Devresi',
+      '050': 'Hız/Boşta Çalışma',
+      '060': 'ECU/PCM',
+      '070': 'Şanzıman',
+    };
+    
+    for (final entry in systemMap.entries) {
+      if (systemCode.startsWith(entry.key)) {
+        return entry.value;
+      }
+    }
+    
+    return 'Motor Yönetimi';
+  }
+
+  // Önem derecesi belirle
+  String _determineSeverity(String dtcCode) {
+    final criticalCodes = [
+      'P0016', 'P0017', 'P0020', 'P0021', // Timing zinciri
+      'P0087', 'P0088', 'P0089', // Yakıt basıncı
+      'P0001', 'P0002', 'P0003', // Yakıt hacim regülatörü
+    ];
+    
+    final highCodes = [
+      'P0300', 'P0301', 'P0302', 'P0303', 'P0304', // Misfire
+      'P0200', 'P0201', 'P0202', 'P0203', 'P0204', // Enjektör
+    ];
+    
+    final mediumCodes = [
+      'P0171', 'P0172', 'P0174', 'P0175', // Karışım
+      'P0420', 'P0430', // Katalitik konvertör
+    ];
+    
+    if (criticalCodes.contains(dtcCode)) return 'Kritik';
+    if (highCodes.contains(dtcCode)) return 'Yüksek';
+    if (mediumCodes.contains(dtcCode)) return 'Orta';
+    
+    return 'Düşük';
+  }
+
+  // Genel DTC açıklaması
+  String _getGenericDTCDescription(String dtcCode) {
+    if (dtcCode.length < 5) return 'Geçersiz DTC kodu';
+    
+    final descriptions = {
+      'P0300': 'Rastgele Silindir Ateşleme Hatası',
+      'P0301': '1. Silindir Ateşleme Hatası',
+      'P0302': '2. Silindir Ateşleme Hatası',
+      'P0303': '3. Silindir Ateşleme Hatası',
+      'P0304': '4. Silindir Ateşleme Hatası',
+      'P0305': '5. Silindir Ateşleme Hatası',
+      'P0306': '6. Silindir Ateşleme Hatası',
+      'P0171': 'Sistem Çok Zayıf (Bank 1)',
+      'P0172': 'Sistem Çok Zengin (Bank 1)',
+      'P0174': 'Sistem Çok Zayıf (Bank 2)',
+      'P0175': 'Sistem Çok Zengin (Bank 2)',
+      'P0420': 'Katalitik Konvertör Verimliliği Düşük (Bank 1)',
+      'P0430': 'Katalitik Konvertör Verimliliği Düşük (Bank 2)',
+      'P0128': 'Motor Soğutma Sistemi Termostat Arızası',
+      'P0442': 'EVAP Sistemi Küçük Kaçak',
+      'P0016': 'Krank ve Eksantrik Mil Korelasyon Hatası (Bank 1)',
+      'P0017': 'Krank ve Eksantrik Mil Korelasyon Hatası (Bank 1 Egzoz)',
+      'P0087': 'Yakıt Basıncı Çok Düşük',
+      'P0088': 'Yakıt Basıncı Çok Yüksek',
+    };
+    
+    return descriptions[dtcCode] ?? 'DTC $dtcCode: Sistem arızası tespit edildi';
+  }
+
   Future<Database> _openDb() async {
     if (_db != null) return _db!;
     final dbPath = await getDatabasesPath();
