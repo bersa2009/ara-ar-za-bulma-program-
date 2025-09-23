@@ -6,6 +6,7 @@ import 'ui/screens/settings.dart';
 import 'ui/theme.dart';
 import 'ui/screens/scan.dart';
 import 'ui/screens/placeholders.dart';
+import 'ui/screens/entry_screen.dart';
 
 void main() {
   runApp(const StrcarApp());
@@ -37,8 +38,9 @@ class _AppRoot extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      initialRoute: '/home',
+      initialRoute: '/entry',
       routes: {
+        '/entry': (_) => const EntryScreen(),
         '/home': (_) => const menu.HomeScreen(),
         '/settings': (_) => const SettingsScreen(),
         '/scan': (_) => const ScanScreen(),
