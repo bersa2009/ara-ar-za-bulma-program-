@@ -41,6 +41,7 @@ class _BatteryTestScreenState extends ConsumerState<BatteryTestScreen> {
   @override
   void dispose() {
     _testTimer?.cancel();
+    _testTimer = null;
     super.dispose();
   }
 

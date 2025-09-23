@@ -28,6 +28,7 @@ class _LiveDataScreenState extends ConsumerState<LiveDataScreen> {
   @override
   void dispose() {
     _dataTimer?.cancel();
+    _dataTimer = null;
     super.dispose();
   }
 
