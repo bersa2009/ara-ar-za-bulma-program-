@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum PreferredTransport { wifi, ble, classic }
 
@@ -92,4 +93,11 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+// Provider for app settings
+final appSettingsProvider = ChangeNotifierProvider<AppSettings>((ref) {
+  final settings = AppSettings();
+  settings.load(); // Load saved settings
+  return settings;
+});
 
