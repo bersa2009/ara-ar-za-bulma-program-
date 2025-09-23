@@ -6,6 +6,15 @@ import 'ui/screens/settings.dart';
 import 'ui/theme.dart';
 import 'ui/screens/scan.dart';
 import 'ui/screens/placeholders.dart';
+import 'ui/screens/fault_detection_screen.dart';
+import 'ui/screens/live_data_screen.dart';
+import 'ui/screens/sensor_info_screen.dart';
+import 'ui/screens/ai_analysis_screen.dart';
+import 'ui/screens/battery_test_screen.dart';
+import 'ui/screens/maintenance_screen.dart';
+import 'ui/screens/vin_screen.dart';
+import 'ui/screens/error_reporting_screen.dart';
+import 'ui/screens/update_screen.dart';
 
 void main() {
   runApp(const StrcarApp());
@@ -42,14 +51,17 @@ class _AppRoot extends ConsumerWidget {
         '/home': (_) => const menu.HomeScreen(),
         '/settings': (_) => const SettingsScreen(),
         '/scan': (_) => const ScanScreen(),
-        '/clear': (_) => const PlaceholderScreen(title: 'Arıza Kodu Temizleme'),
-        '/battery': (_) => const PlaceholderScreen(title: 'Akü Ömrü'),
-        '/realtime': (_) => const PlaceholderScreen(title: 'Gerçek Zamanlı Veri'),
-        '/display': (_) => const PlaceholderScreen(title: 'Görünen Bilgiler'),
-        '/maintenance': (_) => const PlaceholderScreen(title: 'Muayene ve Bakım'),
-        '/o2sensor': (_) => const PlaceholderScreen(title: 'O2 Sensörü İzleme'),
-        '/vin': (_) => const PlaceholderScreen(title: 'Araç Kimlik Numarası (VIN)'),
-        '/dtc_list': (_) => const PlaceholderScreen(title: 'Genel DTC Listesi'),
+        '/fault_detection': (_) => const FaultDetectionScreen(),
+        '/live_data': (_) => const LiveDataScreen(),
+        '/sensor_info': (_) => const SensorInfoScreen(),
+        '/ai_analysis': (_) => const AIAnalysisScreen(),
+        '/battery_test': (_) => const BatteryTestScreen(),
+        '/maintenance': (_) => const MaintenanceScreen(),
+        '/vin': (_) => const VinScreen(),
+        '/error_reporting': (_) => const ErrorReportingScreen(),
+        '/update': (_) => const UpdateScreen(),
+        '/performance': (_) => const PlaceholderScreen(title: 'Performans'),
+        '/reports': (_) => const PlaceholderScreen(title: 'Raporlar'),
       },
     );
   }
