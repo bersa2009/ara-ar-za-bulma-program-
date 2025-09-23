@@ -1,0 +1,227 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path/path.dart' as p;
+import 'package:sqflite/sqflite.dart';
+
+class DtcRepository {
+  static const _dbName = 'strcar.db';
+  static const _dbVersion = 1;
+
+  Database? _db;
+
+  Future<Database> _openDb() async {
+    if (_db != null) return _db!;
+    final dbPath = await getDatabasesPath();
+    final file = p.join(dbPath, _dbName);
+    _db = await openDatabase(
+      file,
+      version: _dbVersion,
+      onCreate: (db, version) async {
+        await _createSchema(db);
+      },
+      onOpen: (db) async {
+        // Performance pragmas for large seed imports
+        await db.execute('PRAGMA journal_mode=WAL;');
+        await db.execute('PRAGMA synchronous=NORMAL;');
+        // Migrate if needed (ensure manufacturer column exists)
+        final info = await db.rawQuery("PRAGMA table_info('dtc')");
+        final hasManufacturer = info.any((c) => (c['name'] as String).toLowerCase() == 'manufacturer');
+        if (!hasManufacturer) {
+          await db.execute('ALTER TABLE dtc ADD COLUMN manufacturer TEXT;');
+          await db.execute('CREATE INDEX IF NOT EXISTS idx_dtc_manufacturer ON dtc(manufacturer);');
+        }
+      },
+    );
+    return _db!;
+  }
+
+  Future<void> _createSchema(Database db) async {
+    await db.execute('''
+      CREATE TABLE dtc (
+        code TEXT PRIMARY KEY,
+        system TEXT NOT NULL,
+        manufacturer TEXT,
+        is_generic INTEGER NOT NULL DEFAULT 1
+      );
+    ''');
+    await db.execute('''
+      CREATE TABLE dtc_i18n (
+        code TEXT NOT NULL,
+        lang TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT,
+        causes TEXT,
+        fixes TEXT,
+        PRIMARY KEY (code, lang),
+        FOREIGN KEY (code) REFERENCES dtc(code) ON DELETE CASCADE
+      );
+    ''');
+    await db.execute('CREATE INDEX idx_dtc_i18n_code_lang ON dtc_i18n(code, lang);');
+    await db.execute('CREATE INDEX idx_dtc_system ON dtc(system);');
+    await db.execute('CREATE INDEX idx_dtc_manufacturer ON dtc(manufacturer);');
+  }
+
+  Future<void> seedFromAssets({required String lang}) async {
+    final db = await _openDb();
+    final assetPath = 'assets/dtc_seed_${lang}.json';
+    final jsonStr = await rootBundle.loadString(assetPath);
+    final List<dynamic> list = json.decode(jsonStr) as List<dynamic>;
+    // Chunk inserts to avoid huge batches
+    const int chunkSize = 1000;
+    for (int i = 0; i < list.length; i += chunkSize) {
+      final chunk = list.sublist(i, i + chunkSize > list.length ? list.length : i + chunkSize);
+      await db.transaction((txn) async {
+        final batch = txn.batch();
+        for (final item in chunk) {
+          final map = item as Map<String, dynamic>;
+          final code = (map['code'] as String).toUpperCase();
+          final system = map['system'] as String? ?? 'Powertrain';
+          final isGeneric = (map['is_generic'] as bool? ?? true) ? 1 : 0;
+          final manufacturer = map['manufacturer'] as String?;
+          final title = map['title'] as String? ?? '';
+          final description = map['description'] as String?;
+          final causes = map['causes'];
+          final fixes = map['fixes'];
+          batch.insert('dtc', {
+            'code': code,
+            'system': system,
+            'manufacturer': manufacturer,
+            'is_generic': isGeneric,
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
+          batch.insert('dtc_i18n', {
+            'code': code,
+            'lang': lang,
+            'title': title,
+            'description': description,
+            'causes': causes == null ? null : json.encode(causes),
+            'fixes': fixes == null ? null : json.encode(fixes),
+          }, conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+        await batch.commit(noResult: true);
+      });
+    }
+  }
+
+  Future<int> count() async {
+    final db = await _openDb();
+    final res = await db.rawQuery('SELECT COUNT(*) as c FROM dtc');
+    return (res.first['c'] as int?) ?? 0;
+  }
+
+  Future<void> ensureSeeded(List<String> langs) async {
+    final c = await count();
+    if (c > 1000) return; // already seeded substantially
+    for (final lang in langs) {
+      await seedFromAssets(lang: lang);
+    }
+  }
+
+  Future<Map<String, dynamic>?> getDtc(String code, {required String lang}) async {
+    final db = await _openDb();
+    final upper = code.toUpperCase();
+    final rows = await db.rawQuery('''
+      SELECT d.code, d.system, d.is_generic, i.title, i.description, i.causes, i.fixes
+      FROM dtc d
+      LEFT JOIN dtc_i18n i ON i.code = d.code AND i.lang = ?
+      WHERE d.code = ?
+      LIMIT 1
+    ''', [lang, upper]);
+    if (rows.isEmpty) return null;
+    final row = rows.first;
+    return {
+      'code': row['code'],
+      'system': row['system'],
+      'is_generic': row['is_generic'] == 1,
+      'title': row['title'],
+      'description': row['description'],
+      'causes': _maybeDecodeJson(row['causes']),
+      'fixes': _maybeDecodeJson(row['fixes']),
+    };
+  }
+
+  Future<List<Map<String, dynamic>>> getMany(List<String> codes, {required String lang}) async {
+    if (codes.isEmpty) return [];
+    final db = await _openDb();
+    final placeholders = List.filled(codes.length, '?').join(',');
+    final uppers = codes.map((e) => e.toUpperCase()).toList();
+    final rows = await db.rawQuery('''
+      SELECT d.code, d.system, d.is_generic, i.title, i.description, i.causes, i.fixes
+      FROM dtc d
+      LEFT JOIN dtc_i18n i ON i.code = d.code AND i.lang = ?
+      WHERE d.code IN ($placeholders)
+    ''', [lang, ...uppers]);
+    return rows.map((row) => {
+          'code': row['code'],
+          'system': row['system'],
+          'is_generic': row['is_generic'] == 1,
+          'title': row['title'],
+          'description': row['description'],
+          'causes': _maybeDecodeJson(row['causes']),
+          'fixes': _maybeDecodeJson(row['fixes']),
+        }).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getByManufacturer(String manufacturer, {required String lang}) async {
+    final db = await _openDb();
+    final rows = await db.rawQuery('''
+      SELECT d.code, d.system, d.is_generic, i.title, i.description, i.causes, i.fixes
+      FROM dtc d
+      LEFT JOIN dtc_i18n i ON i.code = d.code AND i.lang = ?
+      WHERE d.manufacturer = ?
+    ''', [lang, manufacturer]);
+    return rows.map((row) => {
+          'code': row['code'],
+          'system': row['system'],
+          'is_generic': row['is_generic'] == 1,
+          'title': row['title'],
+          'description': row['description'],
+          'causes': _maybeDecodeJson(row['causes']),
+          'fixes': _maybeDecodeJson(row['fixes']),
+        }).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> search({required String prefix, required String lang, String? manufacturer}) async {
+    final db = await _openDb();
+    final args = <Object?>[lang, '$prefix%'];
+    final manuClause = (manufacturer != null && manufacturer.isNotEmpty) ? 'AND d.manufacturer = ?' : '';
+    if (manuClause.isNotEmpty) args.add(manufacturer);
+    final rows = await db.rawQuery('''
+      SELECT d.code, d.system, d.is_generic, d.manufacturer, i.title, i.description, i.causes, i.fixes
+      FROM dtc d
+      LEFT JOIN dtc_i18n i ON i.code = d.code AND i.lang = ?
+      WHERE d.code LIKE ?
+      $manuClause
+      ORDER BY d.code ASC
+      LIMIT 200
+    ''', args);
+    return rows.map((row) => {
+          'code': row['code'],
+          'system': row['system'],
+          'is_generic': row['is_generic'] == 1,
+          'manufacturer': row['manufacturer'],
+          'title': row['title'],
+          'description': row['description'],
+          'causes': _maybeDecodeJson(row['causes']),
+          'fixes': _maybeDecodeJson(row['fixes']),
+        }).toList();
+  }
+
+  Future<void> close() async {
+    await _db?.close();
+    _db = null;
+  }
+
+  dynamic _maybeDecodeJson(Object? value) {
+    if (value == null) return null;
+    if (value is String) {
+      try {
+        return json.decode(value);
+      } catch (_) {
+        return value;
+      }
+    }
+    return value;
+  }
+}
+

@@ -1,0 +1,37 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies (sqlite3)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libsqlite3-0 libsqlite3-dev
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze lib test
+
+      - name: Run tests
+        env:
+          # Ensure sqflite_ffi uses sqlite3 on Linux
+          SQFLITE_DEVFSSQLITE: 1
+        run: flutter test --reporter expanded
+

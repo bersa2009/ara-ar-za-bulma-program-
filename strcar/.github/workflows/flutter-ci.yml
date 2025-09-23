@@ -1,0 +1,48 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: ["main", "master", "**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Validate seed JSONs
+        run: |
+          python3 - << 'PY'
+          import json,sys,collections
+          en=json.load(open('assets/dtc_seed_en.json'))
+          tr=json.load(open('assets/dtc_seed_tr.json'))
+          assert len(en)>=10000 and len(tr)>=10000, 'Seed must be >= 10k per lang'
+          enc=set(e['code'] for e in en)
+          trc=set(e['code'] for e in tr)
+          assert enc==trc, 'EN/TR code sets must match'
+          assert all(e.get('manufacturer') for e in en), 'All entries need manufacturer'
+          print('Seed OK: EN',len(en),'TR',len(tr))
+          PY
+
+      - name: Run tests
+        run: flutter test --coverage
+
+      - name: Upload coverage (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage.lcov
+          path: coverage/lcov.info
