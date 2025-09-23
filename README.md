@@ -63,11 +63,13 @@ Note: Ensure you respect original licenses of vendor datasets. The app seeds fro
 After conversion, the app will seed the SQLite DB on first run. For very large seed files (10k+), initial seeding may take a minute on older devices.
 
 ## Features
+- **Welcome Screen**: Guided setup with Bluetooth/Wi-Fi connection, vehicle selection, and OBD device scanning
 - Universal DTC read (03/07/0A) and clear (04)
 - VIN read (09-02) and brand hint via WMI
 - BLE/Classic/WiFi transports
 - Local DTC DB (TR/EN) with titles/descriptions/causes/fixes
 - PDF export and TTS reading
+- Vehicle information persistence across app sessions
 
 ## Beta
 - Android: Internal Testing track (Play Console)
